@@ -1,0 +1,31 @@
+import numpy as np
+
+# Datos iniciales de las tasas observadas
+plazos = [1, 4, 7, 10]  # Plazos en meses
+tasas_a_plazo = [5.00, 5.10, 5.30, 5.50]  # Tasas a plazo (%)
+
+# Convertimos las tasas a decimales
+tasas_a_plazo = np.array(tasas_a_plazo) / 100
+
+# Inicializamos el array para almacenar las tasas spot
+tasas_spot = np.zeros(len(plazos))
+
+# La tasa spot de 1 mes es conocida directamente
+tasas_spot[0] = tasas_a_plazo[0]
+
+# Proceso de bootstrapping
+for i in range(1, len(plazos)):
+    # Calcula el factor de descuento de los flujos anteriores
+    factor_anterior = 1
+    for j in range(i):
+        factor_anterior *= (1 + tasas_spot[j] * (plazos[j] / 12))
+    
+    # Resolviendo para la tasa spot del periodo actual
+    tasas_spot[i] = ((1 + tasas_a_plazo[i] * (1 / 12)) / factor_anterior) ** (12 / plazos[i]) - 1
+
+# Convertimos las tasas spot a porcentajes
+tasas_spot *= 100
+
+# Mostrar los resultados de las tasas spot
+for i, plazo in enumerate(plazos):
+    print(f"Tasa Spot para {plazo} meses: {tasas_spot[i]:.2f}%")
